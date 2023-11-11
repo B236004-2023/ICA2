@@ -1,4 +1,5 @@
 import argparse
+import os
 parser = argparse.ArgumentParser(
                     prog='Conservation finder',
                     description='The software is designed to identify a family of protein acoss a tree The user should should offer the name of protein family, and species name list.',
@@ -15,6 +16,8 @@ parser.add_argument('-dl', '--vector_deletion_left', type=int, help="use the las
 parser.add_argument('-dr', '--vector_deletion_right', type=int, help="use the first-base index of reversed primer")
 args = parser.parse_args()
 
+cmd1 = 'esearch -db protein -query "glucose-6-phosphatase proteins" | efetch -format fasta'
+os.system(cmd1)
 
 print(args.proteinname)
 print(args.species_list)
