@@ -16,7 +16,10 @@ parser.add_argument('-dl', '--vector_deletion_left', type=int, help="use the las
 parser.add_argument('-dr', '--vector_deletion_right', type=int, help="use the first-base index of reversed primer")
 args = parser.parse_args()
 
-cmd1 = 'esearch -db protein -query "glucose-6-phosphatase proteins" | efetch -format fasta'
+default_protein_name = "glucose-6-phosphatase proteins"
+
+cmd1 = f'esearch -db protein -query "{args.proteinname} AND {args.species_list}[organism]" | efetch -format fasta'
+print(cmd1)
 os.system(cmd1)
 
 print(args.proteinname)
