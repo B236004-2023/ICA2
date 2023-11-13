@@ -9,7 +9,8 @@ parser.add_argument('-p', '--proteinname', type=str)
 parser.add_argument('-l', '--species_list', type=str)
 parser.add_argument('-n', '--filename', type=str)
 parser.add_argument('-t', '--test', type=str)
-parser.add_argument('-w', '--windowsize', type=int, help="required insert_seq or backbone")
+parser.add_argument('-w', '--windowsize', type=int)
+parser.add_argument('-f', '--graph_format', type=str)
 parser.add_argument('-1', '--primerLeft', type=str)
 parser.add_argument('-2', '--primerRight', type=str)
 parser.add_argument('-vl','--vector_left_primer_start', type=int)
@@ -24,7 +25,7 @@ cmd1 = f'esearch -db protein -query "{args.proteinname} AND {args.species_list}[
 print(cmd1)
 os.system(cmd1)
 
-if args.test=="yes":
+if args.test=="no":
     cmd2 = f"emma -sequence {args.filename} -outseq {args.filename}.alignment -dendoutfile {args.filename}.dnd"
     os.system(cmd2)
 else:
@@ -32,6 +33,9 @@ else:
     cmd4 = f"emma -sequence demo.fasta -outseq {args.filename}.alignment -dendoutfile {args.filename}.dnd"
     os.system(cmd3)
     os.system(cmd4)
+
+cmd5 = f"plotcon -sequences {args.filename}.alignment -graph {args.graph_format} -winsize {args.windowsize}"
+
 
 print(args.proteinname)
 print(args.species_list)
