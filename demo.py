@@ -7,6 +7,8 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('-p', '--proteinname', type=str)
 parser.add_argument('-l', '--species_list', type=str)
+parser.add_argument('-n', '--filename', type=str)
+parser.add_argument('-t', '--test', type=str)
 parser.add_argument('-w', '--windowsize', type=int, help="required insert_seq or backbone")
 parser.add_argument('-1', '--primerLeft', type=str)
 parser.add_argument('-2', '--primerRight', type=str)
@@ -18,9 +20,18 @@ args = parser.parse_args()
 
 default_protein_name = "glucose-6-phosphatase proteins"
 
-cmd1 = f'esearch -db protein -query "{args.proteinname} AND {args.species_list}[organism]" | efetch -format fasta'
+cmd1 = f'esearch -db protein -query "{args.proteinname} AND {args.species_list}[organism]" | efetch -format fasta >{args.filename}'
 print(cmd1)
 os.system(cmd1)
+
+if args.test=="yes":
+    cmd2 = f"emma -sequence {args.filename} -outseq {args.filename}.alignment -dendoutfile {args.filename}.dnd"
+    os.system(cmd2)
+else:
+    cmd3 = f"head -50 {args.filename} >demo.fasta"
+    cmd4 = f"emma -sequence demo.fasta -outseq {args.filename}.alignment -dendoutfile {args.filename}.dnd"
+    os.system(cmd3)
+    os.system(cmd4)
 
 print(args.proteinname)
 print(args.species_list)
