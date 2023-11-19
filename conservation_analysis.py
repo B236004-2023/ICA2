@@ -85,7 +85,7 @@ if args.species_list == "":
 					minlen = args.minlen)		
 	else:
 		#Conservation analysis within single species is not offered
-		print("We can't offer conservation analysis in single species")
+		print("Error: We can't offer conservation analysis in single species.")
 		os._exit(0)
 
 #If a species list file is provided
@@ -93,15 +93,22 @@ else:
 	#Query species protein line by line
 	fasta_file_out = open(f"{args.prefix}.protein.fa", "a")
 	speceis_id_file = open(args.species_list, "r")
+	protein_sequence_number = 0
 	for line in speceis_id_file.readlines():
-            query_protein = subprocess.check_output(f'esearch -db protein -query "{args.protein_name}[protein] AND txid{line}[organism]" | efetch -format fasta', shell=True).decode()
-                #print(query_protein)
-            fasta_file_out.write(query_protein)
-        fasta_file_out.close()
+		query_protein = subprocess.check_output(f'esearch -db protein -query "{args.protein_name}[protein] AND txid{line}[organism]" | efetch -format fasta', shell=True).decode() 
+		if query_protein == "":
+			print(f"Speceis {line} not have the protein.")
+		else:
+			protein_sequence_number = protein_sequence_number + 1
+		fasta_file_out.write(query_protein)
+		print(query_protein)
+	fasta_file_out.close()
 	#Perform conservation analysis
-	conservation_analysis(fasta_file = fasta_file_out,
+	if protein_sequence_number >= 2:
+		conservation_analysis(fasta_file = f"{args.prefix}.protein.fa",
                                         out_file_prefix = args.prefix,
                                         graph_format = args.graph_format,
                                         windowsize = args.windowsize,
                                         minlen = args.minlen)
-	
+	else:
+		print("Error: We can't offer conservation analysis in single species.")
