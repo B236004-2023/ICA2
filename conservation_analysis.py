@@ -1,10 +1,10 @@
 #Import necessary modules
-import argparse#Used for parsing command-line arguments
-import subprocess#Used for executing system commands
-import os#Used for executing system commands and file operations
+import argparse #Used for parsing command-line arguments
+import subprocess #Used for executing system commands
+import os #Used for executing system commands and file operations
 parser = argparse.ArgumentParser(
-                    prog='Conservation finder',
-                    description='The software is designed to create a versatile and user-friendly bioinformatics tool that allows users to analyze protein sequences, assess their conservation, identify motifs, and optionally perform additional analyses for relevant biological information.',
+                    prog='Conservation analysis',
+                    description='The programme is designed to create a versatile and user-friendly bioinformatics tool that allows users to analyze protein sequences, assess their conservation, identify motifs, and optionally perform additional analyses for relevant biological information.',
                     epilog='Author: B236004-2023')
 
 parser.add_argument('-p', '--protein_name', type=str, help="Specify the protein name.")
@@ -29,8 +29,8 @@ def conservation_analysis(fasta_file, out_file_prefix, graph_format, windowsize,
         align_info = f"infoalign {out_file_prefix}.aln {out_file_prefix}.info"
 	#Print alignment information on the screen
         cdm_print = f"cat {out_file_prefix}.info"
-        #Filter the alignment based on the align info column 7. similarity per cent. you can open this to the user in further time.
-	#current cut-off is 0.5
+        #Filter the alignment based on the align info column 7 similarity per cent.
+	#select lines where the value in the 3rd column is greater than or equal to 0.5 then print the value in the 1st column.
         filter_the_alignment = f"grep -v \"#\" {out_file_prefix}.info | awk '{{print $2, $7, $7/$3}}' | awk '$3 >= 0.5 {{print $1}}' > species_candidate.txt"
         #Extract the alignment by useing pullseq
         alignment_extraction = f"/localdisk/data/BPSM/ICA2/pullseq -i {out_file_prefix}.aln -n species_candidate.txt > {out_file_prefix}.filter.aln"
@@ -53,7 +53,7 @@ def conservation_analysis(fasta_file, out_file_prefix, graph_format, windowsize,
 
 
 #The main process of performing protein and species conservation analysis by using if loops
-# If no species list file is provided
+#If no species list file is provided
 if args.species_list == "":
         #Get organism information
 	Organism_Information = subprocess.check_output(f'esearch -db taxonomy -query "{args.organism_name}" | esummary | xtract -pattern DocumentSummary -element Rank Id', shell=True) 
@@ -96,14 +96,14 @@ else:
 	protein_sequence_number = 0
 	for line in speceis_id_file.readlines():
 		query_protein = subprocess.check_output(f'esearch -db protein -query "{args.protein_name}[protein] AND txid{line}[organism]" | efetch -format fasta', shell=True).decode() 
+		#If the species provided by user does not contain the searched proteins
 		if query_protein == "":
 			print(f"Speceis {line} not have the protein.")
 		else:
 			protein_sequence_number = protein_sequence_number + 1
 		fasta_file_out.write(query_protein)
-		print(query_protein)
 	fasta_file_out.close()
-	#Perform conservation analysis
+	#If the protein provided by user is not a single sequence, perform conservation analysis
 	if protein_sequence_number >= 2:
 		conservation_analysis(fasta_file = f"{args.prefix}.protein.fa",
                                         out_file_prefix = args.prefix,
